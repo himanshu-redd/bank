@@ -8,14 +8,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @Slf4j
 @RequestMapping("/bank")
 public class TransactionController {
     @PostMapping(path = "/debit", produces = MediaType.APPLICATION_JSON_VALUE)
     public DebitFromBankResponse debitFromBank(@RequestBody DebitFromBankRequest debitFromBankRequest){
-        log.info("Debit from bank request received");
+        log.info("Debit from bank request received " + debitFromBankRequest.toString());
         DebitFromBankResponse response = new DebitFromBankResponse();
         response.setMessage("asljf");
         response.setStatus("200");
