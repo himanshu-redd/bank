@@ -3,7 +3,7 @@ package com.masters.pay.bank.request;
 import lombok.Data;
 
 @Data
-public class UserLogInRequest {
+public class DebitFromBankRequest {
     private String emailId;
-    private String password;
+    private Long amount;
 }

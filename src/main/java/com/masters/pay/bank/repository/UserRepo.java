@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
-    @Query("SELECT u from User u WHERE u.username = ?1")
-    List<User> findByUsername(String username);
+    @Query("SELECT u from User u WHERE u.emailId= ?1")
+    List<User> findByEmailId(String emailId);
 }

@@ -18,32 +18,34 @@ import java.util.List;
 @Slf4j
 public class UserService {
     @Autowired
-    private UserRepo userRepo;
+   UserRepo userRepo;
 
     public BaseResponse userSignUp(UserSignUpRequest userSignUpRequest) {
-        log.info("Signing Up the user : " + userSignUpRequest.toString());
+
         try {
             validateUserSignUpRequest(userSignUpRequest);
-            List<User> resultSet = userRepo.findByUsername(userSignUpRequest.getUsername());
+            List<User> resultSet = userRepo.findByEmailId(userSignUpRequest.getEmailId());
             if (resultSet.isEmpty()) {
                 User user = new User();
-                user.setUsername(userSignUpRequest.getUsername());
                 user.setFirstName(userSignUpRequest.getFirstName());
                 user.setLastName(userSignUpRequest.getLastName());
                 user.setEmailId(userSignUpRequest.getEmailId());
                 user.setPassword(userSignUpRequest.getPassword());
                 user.setPhoneNo(userSignUpRequest.getPhoneNo());
                 user.setVpa(createVpa(userSignUpRequest.getPhoneNo()));
+                user.setBalanceAmount(100L);
                 userRepo.save(user);
                 log.info("User Sign Up Successful");
-                return UserUtil.getBaseResponse("200", "User Signup Successful");
+                return UserUtil.getUserSignUpResponse("200", "User SignUp Successful",
+                        user.getFirstName(), user.getLastName(), user.getPhoneNo(), user.getEmailId(), user.getVpa(),
+                        user.getBalanceAmount());
             } else {
                 log.info("Username already exists");
-                return UserUtil.getBaseRepWithFailedStatus("400", "Username already exists");
+                return UserUtil.getFailedBaseResponse("400", "Username already exists");
             }
         } catch (ValidationException e) {
             log.error("Validation Exception >>> " + e.getMessage());
-            return UserUtil.getBaseRepWithFailedStatus("400", e.getMessage());
+            return UserUtil.getFailedBaseResponse("400", e.getMessage());
         }
     }
 
@@ -58,27 +60,24 @@ public class UserService {
         log.info("Loging in the user" + userLoginRequest.toString());
         try {
             validateUserLoginRequest(userLoginRequest);
-            List<User> resultSet = userRepo.findByUsername(userLoginRequest.getUsername());
+            List<User> resultSet = userRepo.findByEmailId(userLoginRequest.getEmailId());
             if (resultSet.isEmpty()) {
-                log.error("User not registered");
-                return UserUtil.getBaseRepWithFailedStatus("400", "User not registered");
+                log.error("User not registered, Sign Up First.");
+                return UserUtil.getFailedBaseResponse("400", "User not registered. Sign Up first");
             } else if (!resultSet.get(0).getPassword().equals(userLoginRequest.getPassword())) {
                 log.error("Password incorrect");
-                return UserUtil.getBaseRepWithFailedStatus("400", "Password incorrect");
+                return UserUtil.getFailedBaseResponse("400", "Password incorrect");
             } else {
                 log.info("Login Successful");
-                return UserUtil.getBaseResponse("200", "Login Successful");
+                return UserUtil.getSuccessBaseResponse("200", "Login Successful");
             }
         } catch (ValidationException e) {
             log.error("Validation Exception >>> " + e.getMessage());
-            return UserUtil.getBaseRepWithFailedStatus("400", e.getMessage());
+            return UserUtil.getFailedBaseResponse("400", e.getMessage());
         }
     }
 
     private void validateUserSignUpRequest(UserSignUpRequest userSignUpRequest) throws ValidationException {
-        if (!StringUtils.hasText(userSignUpRequest.getUsername())) {
-            throw new ValidationException("Username Missing");
-        }
         if (!StringUtils.hasText(userSignUpRequest.getFirstName())) {
             throw new ValidationException("First name Missing");
         }
@@ -97,8 +96,8 @@ public class UserService {
     }
 
     private void validateUserLoginRequest(UserLogInRequest userLoginRequest) throws ValidationException {
-        if (!StringUtils.hasText(userLoginRequest.getUsername())) {
-            throw new ValidationException("Username missing");
+        if (!StringUtils.hasText(userLoginRequest.getEmailId())) {
+            throw new ValidationException("emailId missing");
         }
         if (!StringUtils.hasText(userLoginRequest.getPassword())) {
             throw new ValidationException("Password Missing");

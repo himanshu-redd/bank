@@ -1,5 +1,6 @@
 package com.masters.pay.bank.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,16 +18,20 @@ import java.time.Instant;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
     private Long id;
     @CreationTimestamp
+    @JsonIgnore
     Instant createdTime;
     @UpdateTimestamp
+    @JsonIgnore
     Instant updatedTime;
     private String firstName;
     private String lastName;
-    private String username;
+    @JsonIgnore
     private String password;
     private String emailId;
     private String phoneNo;
     private String vpa;
+    private Long balanceAmount;
 }
